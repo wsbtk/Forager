@@ -35,14 +35,16 @@ $images = array();
 	                    $href .= ':' . $parts['port'];
 	                }
 	                $href .= $path;
-				    foreach($imgs as $img) {
-						$temp = $img->getAttribute('src');
-						$path = Relative_2_Absolute($temp, $thishost);
-			     		if ( !in_array($path, $images) ) {
-			             	$code = Get_Http_Code($path);
-				    		$images[$path] = $code;
+	                if (count($images) < 300) {
+					    foreach($imgs as $img) {
+							$temp = $img->getAttribute('src');
+							$path = Relative_2_Absolute($temp, $url);
+				     		if ( !in_array($path, $images) ) {
+				             	$code = Get_Http_Code($path);
+					    		$images[$path] = $code;
+						    }
 					    }
-				    }
+	                }
 				  	if ( !in_array($href, $urls) ) {
 						$code = Get_Http_Code($url);
 						$urls[$href] = $code;
@@ -54,25 +56,23 @@ $images = array();
 	        //  $_SERVER['SERVER_NAME']
 		    // handle 'img'
 	    }
-
 	    // echo "URL:",$url,PHP_EOL,"CONTENT:",PHP_EOL,$dom->saveHTML(),PHP_EOL,PHP_EOL;
 	    // foreach ($urls as $url => $value) {
 	    // 	// $code = Get_Http_Code($url);
 	    // 	echo "$url = [$value]<br />";// . Get_Http_Code($url);
 	    // }
-
+		echo "urls = " . count($urls) . "<br />",PHP_EOL;
+		echo "images = " . count($images) . "<br />",PHP_EOL;
+		echo "*************  IMAGES  *************<br />";
 		foreach ($urls as $url => $value) {
 			// $code = Get_Http_Code($url);
 			echo "$url = [$value]<br />";		// . Get_Http_Code($url);
 		}
-
 		echo "*************  IMAGES  *************<br />";
 		foreach ($images as $img => $value) {
 			echo "$img = [$value]<br />";
 		}
-
 	}
-	
 	/* Thank you StackOverflow...
 	 * http://stackoverflow.com/questions/1243418/php-how-to-resolve-a-relative-url
 	 * This function would have taken a week to write.
@@ -105,7 +105,6 @@ $images = array();
         /* absolute URL is ready! */
         return $scheme.'://'.$abs;
     }
-
 	function Get_Http_Code($url) {  
 	  $ch = curl_init();
 	  curl_setopt($ch, CURLOPT_URL, $url);
@@ -120,4 +119,4 @@ $images = array();
 
 
 $url = "http://spsu.edu/";
-crawl_page($url, 1);
+crawl_page($url, 2);
