@@ -16,6 +16,8 @@ class OurStuff {
 		public $depth = 1;
 		public $errors = array();
 		public $total_scanned = 0;
+		public $scan_num = 0;
+
 		public function __construct() {
 			$this->domain = "http://spsu.edu/";
 			$this->urls = array();
@@ -25,17 +27,31 @@ class OurStuff {
 			$this->depth = 1;
 			$this->errors = array();
 			$this->total_scanned = 0;
+			$this->scan_num = 0;
 		}
 	  }
 
 class Crawler {    
-	function crawl( $stuff ) {		
-		if (count($stuff->urls) > 500) { 
+	function crawl( &$stuff ) {		
+		if (count($stuff->scanned) > 500) { 
     		// echo $stuff->total_scanned . "<br />";
-    		echo "total urls = " . count($stuff->urls) . "<br />";
+    		echo "total urls = " . count($stuff->scanned) . "<br />";
     		return; }
+    		else {
+    			$num = count($stuff->scan_num);
+				$tot = $stuff->total_scanned;
+    			echo "********  scan # = [$num]  ********<br />";
+    			echo "********  scanned = [$tot]  ********<br />";
+    		}
 
-		$url = array_pop($stuff->all_found);
+		// $url = array_pop($stuff->all_found);
+    		if($scan_num < count($stuff->all_found)) {
+    			$scan = $stuff->scan_num;
+    			$url = $stuff->all_found[$scan];
+    			$stuff->scan_num += 1;
+    		}
+    		else
+    			return;
 
 		$content = file_get_contents( $url );    
 		if ( $content === FALSE ) {
@@ -54,20 +70,23 @@ class Crawler {
 		$DOM->loadHTML($content);
 
 		$tmp1 = $this->getAllLinks($DOM);
+		$stuff->total_scanned += count($tmp1);
 		foreach ($tmp1 as $link) {
 			if ( !in_array($link, $stuff->scanned) ) {
 				// $currentdomain = $stuff->domains[count($stuff->domain)-1];
 				$path = $this->Relative_2_Absolute($link,$stuff->domain);
 				$code = $this->Get_Http_Code($path);
-				$stuff->scanned[$link] = $code;
+				$stuff->scanned[$path] = $code;
 				$stuff->all_found[] = $path;
+				// $stuff->total_scanned++;
 			}
     		// var_dump($stuff);
-    		echo "$path = [$code]<br />";
-			unset($path);
-			unset($code);
+    		// echo "$path = [$code]<br />";
+    		// echo " ";
 		}
-
+		echo "$path";
+		unset($path);
+		unset($code);
 
 	    $this->crawl($stuff);
 	}
