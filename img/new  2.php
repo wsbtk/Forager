@@ -1,0 +1,1 @@
+$Directory = move_uploaded_file($tmpname, "Files/".$_SESSION['user']['email']."
