@@ -37,7 +37,8 @@ $scanned_urls;
 	                    $href .= ':' . $parts['port'];
 	                }
 	                $href .= $path;
-	                if (count($images) < 300) {
+	                // why should we limit # of images in testing?
+	                // if (count($images) < 300) {
 					    foreach($imgs as $img) {
 							$temp = $img->getAttribute('src');
 							$path = Relative_2_Absolute($temp, $url);
@@ -49,7 +50,7 @@ $scanned_urls;
 				     			}
 						    }
 					    }
-	                }
+	                // }
 				  	if ( !in_array($href, $urls) ) {
 						$code = Get_Http_Code($url);
 						$scanned_urls++;
@@ -126,7 +127,7 @@ $scanned_urls;
 	}
 
 $url = "http://spsu.edu/";
-crawl_page($url, 2);
+crawl_page($url, 1);
 
 echo "urls = " . count($urls) . "<br />",PHP_EOL;
 echo "images = " . count($images) . "<br />",PHP_EOL;
