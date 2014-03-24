@@ -2,6 +2,8 @@
 
 $urls = array();
 $images = array();
+$scanned_images;
+$scanned_urls;
 
 	function crawl_page($url, $depth = 1)
 	{
@@ -40,14 +42,20 @@ $images = array();
 							$temp = $img->getAttribute('src');
 							$path = Relative_2_Absolute($temp, $url);
 				     		if ( !in_array($path, $images) ) {
-				             	$code = Get_Http_Code($path);
-					    		$images[$path] = $code;
+				     			$code = Get_Http_Code($path);
+				     			$scanned_images++;
+				     			if ($code != 200) {
+					    			$images[$path] = $code;
+				     			}
 						    }
 					    }
 	                }
 				  	if ( !in_array($href, $urls) ) {
 						$code = Get_Http_Code($url);
-						$urls[$href] = $code;
+						$scanned_urls++;
+						if ($code != 200) {
+							$urls[$href] = $code;
+						}
 	    				crawl_page($href, $depth - 1);
 				    }
 	            }
@@ -61,17 +69,17 @@ $images = array();
 	    // 	// $code = Get_Http_Code($url);
 	    // 	echo "$url = [$value]<br />";// . Get_Http_Code($url);
 	    // }
-		echo "urls = " . count($urls) . "<br />",PHP_EOL;
-		echo "images = " . count($images) . "<br />",PHP_EOL;
-		echo "*************  IMAGES  *************<br />";
-		foreach ($urls as $url => $value) {
-			// $code = Get_Http_Code($url);
-			echo "$url = [$value]<br />";		// . Get_Http_Code($url);
-		}
-		echo "*************  IMAGES  *************<br />";
-		foreach ($images as $img => $value) {
-			echo "$img = [$value]<br />";
-		}
+		// echo "urls = " . count($urls) . "<br />",PHP_EOL;
+		// echo "images = " . count($images) . "<br />",PHP_EOL;
+		// echo "*************  URLS  *************<br />";
+		// foreach ($urls as $url => $value) {
+		// 	// $code = Get_Http_Code($url);
+		// 	echo "$url = [$value]<br />";		// . Get_Http_Code($url);
+		// }
+		// echo "*************  IMAGES  *************<br />";
+		// foreach ($images as $img => $value) {
+		// 	echo "$img = [$value]<br />";
+		// }
 	}
 	/* Thank you StackOverflow...
 	 * http://stackoverflow.com/questions/1243418/php-how-to-resolve-a-relative-url
@@ -117,6 +125,17 @@ $images = array();
 	  return $headers['http_code'];
 	}
 
-
 $url = "http://spsu.edu/";
 crawl_page($url, 2);
+
+echo "urls = " . count($urls) . "<br />",PHP_EOL;
+echo "images = " . count($images) . "<br />",PHP_EOL;
+echo "*************  URLS  *************<br />";
+foreach ($urls as $url => $value) {
+	// $code = Get_Http_Code($url);
+	echo "$url = [$value]<br />";		// . Get_Http_Code($url);
+}
+echo "*************  IMAGES  *************<br />";
+foreach ($images as $img => $value) {
+	echo "$img = [$value]<br />";
+}
