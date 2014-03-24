@@ -9,6 +9,14 @@ $urls = array();
 $all_found = array();
  
 
+  class OurStuff {
+    public $domain = "http://spsu.edu";
+    public $found = "http://spsu.edu/";
+    public $scanned = array();
+    public $dirty = array();
+    public $depth = 1;
+  }
+
 class Crawler {    
 
   //     // //  ********************  BEGIN - Original Area  ********************
@@ -68,14 +76,14 @@ class Crawler {
     /* This is where we add to the count of crawled URLs
      * and to our list of crawled URLs. */
     $host = $parse['host'];
-    echo $host . "<br />";
+    // echo $host . "<br />";
 
     $domains[ $host ]++;
     $urls[$host] = $url;
     
-    foreach ($urls as $u) {
-      echo "$u <br />";      
-    }
+    // foreach ($urls as $u) {
+    //   echo "$u <br />";      
+    // }
 
     $content = file_get_contents( $url );    
     if ( $content === FALSE )
@@ -95,7 +103,7 @@ class Crawler {
     }
 
     echo 'all_found = ' . count($all_found) . '<br />';
-    echo 'Found = ' . count($found) . '<br />';
+    // echo 'Found = ' . count($found) . '<br />';
 
     // foreach ($found as $value) {
     //     $path[] = $this->Relative_2_Absolute($value,$url);
@@ -113,7 +121,7 @@ class Crawler {
 
       $code = $this->Get_Http_Code($path);
       $urls[$path] = $code;
-      echo "$path  =  $code <br />";
+      // echo "$path  =  $code <br />";
 
     // $code = $this->Get_Http_Code($onelink);
     // $urls[$onelink] = $code;
@@ -122,7 +130,6 @@ class Crawler {
     $this->crawl($all_found);
     // //   ********************  END   -- New Area  ********************  
   }
-
   function getAllElements(DOMDocument $thisDOM) {
       $array;
       $aVals = $thisDOM->getElementsByTagName('a');
@@ -136,7 +143,6 @@ class Crawler {
       }
       return $array;
   }
-
   /* Thank you StackOverflow...
    * http://stackoverflow.com/questions/1243418/php-how-to-resolve-a-relative-url
    * This function would have taken a week to write.
@@ -168,8 +174,7 @@ class Crawler {
 
         /* absolute URL is ready! */
         return $scheme.'://'.$abs;
-    }
-
+  }
   function absolute_array(array $ar, $url)     {
     //    $cnt = count($ar);
         foreach($ar as $a)
@@ -180,12 +185,9 @@ class Crawler {
         }
         return $code;
   }
-  
   function Check_Value_Exists($arr) {
       return array_key_exists('first', $arr);
   }
-
-
   function Get_Http_Code($url) {  
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
@@ -197,9 +199,9 @@ class Crawler {
   
       return $headers['http_code'];
   }
-
 }
 
+// $stuff = new OurStuff;
 $all_found[] = "http://spsu.edu/";
 
 $spider = new Crawler();
