@@ -1,87 +1,43 @@
 <?php
+var_dump(libxml_use_internal_errors(true));
 
-$urls = array();
-$images = array();
-$scanned_images;
-$scanned_urls;
-
-	function crawl_page($url, $depth = 1)
-	{
-	    static $seen = array();
-	    if (isset($seen[$url]) || $depth === 0) {
-	        return;
-	    }
-
-	    $seen[$url] = true;
-
-	    $dom = new DOMDocument('1.0');
-	    @$dom->loadHTMLFile($url);
-
-	    $anchors = $dom->getElementsByTagName('a');
-	    $imgs = $dom->getElementsByTagName('img');
-	    foreach ($anchors as $element) {
-	        $href = $element->getAttribute('href');
-	        if (0 !== strpos($href, 'http')) {
-	            $path = '/' . ltrim($href, '/');
-	            if (extension_loaded('http')) {
-	                $href = http_build_url($url, array('path' => $path));
-	            } else {
-	                $parts = parse_url($url);
-	                $href = $parts['scheme'] . '://';
-	                if (isset($parts['user']) && isset($parts['pass'])) {
-	                    $href .= $parts['user'] . ':' . $parts['pass'] . '@';
-	                }
-	                $href .= $parts['host'];
-	                $thishost = $parts['host'];
-	                if (isset($parts['port'])) {
-	                    $href .= ':' . $parts['port'];
-	                }
-	                $href .= $path;
-	                // why should we limit # of images in testing?
-	                // if (count($images) < 300) {
-					    foreach($imgs as $img) {
-							$temp = $img->getAttribute('src');
-							$path = Relative_2_Absolute($temp, $url);
-				     		if ( !in_array($path, $images) ) {
-				     			$code = Get_Http_Code($path);
-				     			$scanned_images++;
-				     			if ($code != 200) {
-					    			$images[$path] = $code;
-				     			}
-						    }
-					    }
-	                // }
-				  	if ( !in_array($href, $urls) ) {
-						$code = Get_Http_Code($url);
-						$scanned_urls++;
-						if ($code != 200) {
-							$urls[$href] = $code;
-						}
-	    				crawl_page($href, $depth - 1);
-				    }
-	            }
-	        }
-		    // echo $href . "<br />",PHP_EOL;
-	        //  $_SERVER['SERVER_NAME']
-		    // handle 'img'
-	    }
-	    // echo "URL:",$url,PHP_EOL,"CONTENT:",PHP_EOL,$dom->saveHTML(),PHP_EOL,PHP_EOL;
-	    // foreach ($urls as $url => $value) {
-	    // 	// $code = Get_Http_Code($url);
-	    // 	echo "$url = [$value]<br />";// . Get_Http_Code($url);
-	    // }
-		// echo "urls = " . count($urls) . "<br />",PHP_EOL;
-		// echo "images = " . count($images) . "<br />",PHP_EOL;
-		// echo "*************  URLS  *************<br />";
-		// foreach ($urls as $url => $value) {
-		// 	// $code = Get_Http_Code($url);
-		// 	echo "$url = [$value]<br />";		// . Get_Http_Code($url);
-		// }
-		// echo "*************  IMAGES  *************<br />";
-		// foreach ($images as $img => $value) {
-		// 	echo "$img = [$value]<br />";
-		// }
+	class OurStuff {
+		public $domain = "http://spsu.edu";
+		public $found = array();
+		public $scanned = array();
+		public $dirty = array();
+		public $depth = 1;
 	}
+    // return array();
+    function Get_a_Elements(DOMDocument $thisDOM) {
+        foreach ($thisDOM->Get_ElementsByTagName('a') as $found_a) {
+        //    echo $DOM->saveHtml($node), PHP_EOL;
+            $array[] = $found_a->getAttribute('href');        
+        }
+        return $array;
+    }
+
+    function Get_src_Elements(DOMDocument $thisDOM) {
+        $imgs = $thisDOM->Get_ElementsByTagName('img');
+        foreach($imgs as $img){
+            $src[] = $img->getAttribute('src');
+        }
+        return $src;
+    }
+    function getAllElements(DOMDocument $thisDOM) {
+        $array = new array();
+        $aVals = $thisDOM->getElementsByTagName('a');
+        foreach ($aVals as $found_a) {
+        //    echo $DOM->saveHtml($node), PHP_EOL;
+            $array[] = $found_a->getAttribute('href');        
+        }
+        $imgs = $thisDOM->getElementsByTagName('img');
+        foreach($imgs as $img){
+            $array[] = $img->getAttribute('src');
+        }
+        return $array;
+    }
+	
 	/* Thank you StackOverflow...
 	 * http://stackoverflow.com/questions/1243418/php-how-to-resolve-a-relative-url
 	 * This function would have taken a week to write.
@@ -124,19 +80,117 @@ $scanned_urls;
 	  curl_close($ch);
 
 	  return $headers['http_code'];
+	}	
+	// function crawl_page($url, $depth = 1)
+	function crawl_page($stuff) {
+		$url = $stuff->domain;
+		$depth = $stuff->depth;
+
+		$urls = array();
+		$images = array();
+
+	    // static $seen = array();
+	    // if (isset($seen[$url]) || $depth === 0) {
+	    //     return;
+	    // }
+
+	    // $seen[$url] = true;
+
+        
+        $html_source = file_get_contents($url);
+        $DOM = new DOMDocument;
+        $DOM->loadHTML($html_source);
+        
+        // $tmp1 = getAllElements($DOM);
+        $tmp1 = getAllElements($DOM);
+
+        foreach ($tmp1 as $value) {
+            $url = Relative_2_Absolute($value,$url);
+			$code = Get_Http_Code($url);
+			$stuff->found[$url] = $code;
+        }
+        unset($value);
+
+        // var_dump($path);
+        /*
+		    $dom = new DOMDocument('1.0');
+		    @$dom->loadHTMLFile($url);
+
+		    $anchors = $dom->getElementsByTagName('a');
+		    $imgs = $dom->getElementsByTagName('img');
+		    foreach ($anchors as $element) {
+		        $href = $element->getAttribute('href');
+		        if (0 !== strpos($href, 'http')) {
+		            $path = '/' . ltrim($href, '/');
+		            if (extension_loaded('http')) {
+		                $href = http_build_url($url, array('path' => $path));
+		            } else {
+		                $parts = parse_url($url);
+		                $href = $parts['scheme'] . '://';
+		                if (isset($parts['user']) && isset($parts['pass'])) {
+		                    $href .= $parts['user'] . ':' . $parts['pass'] . '@';
+		                }
+		                $href .= $parts['host'];
+		                $thishost = $parts['host'];
+		                if (isset($parts['port'])) {
+		                    $href .= ':' . $parts['port'];
+		                }
+		                $href .= $path;
+					    foreach($imgs as $img) {
+							$temp = $img->getAttribute('src');
+							$path = Relative_2_Absolute($temp, $url);
+				     		if ( !in_array($path, $images) ) {
+				             	$code = Get_Http_Code($path);
+					    		$images[$path] = $code;
+						    }
+					    }
+					  	if ( !in_array($href, $urls) ) {
+							$code = Get_Http_Code($url);
+							$urls[$href] = $code;
+		    				crawl_page($href, $depth - 1);
+					    }
+		            }
+		        }
+			    // echo $href . "<br />",PHP_EOL;
+		        //  $_SERVER['SERVER_NAME']
+			    // handle 'img'
+		    }
+		    // echo "URL:",$url,PHP_EOL,"CONTENT:",PHP_EOL,$dom->saveHTML(),PHP_EOL,PHP_EOL;
+			    // foreach ($urls as $url => $value) {
+			    // 	// $code = Get_Http_Code($url);
+			    // 	echo "$url = [$value]<br />";// . Get_Http_Code($url);
+			    // }
+			    // $newStuff = new OurStuff;
+				// echo "urls = " . count($urls) . "<br />",PHP_EOL;
+				// echo "images = " . count($images) . "<br />",PHP_EOL;
+				// echo "*************  IMAGES  *************<br />";
+			foreach ($path as $url) {
+				$code = Get_Http_Code($url);
+				$stuff->found[$url] = $code;
+				// echo "$url = [$value]<br />";		// . Get_Http_Code($url);
+			}
+			// unset($value);
+			// echo "*************  IMAGES  *************<br />";
+			// foreach ($images as $img => $value) {
+			// 	$stuff->found[$img] = $value;
+			// 	// echo "$img = [$value]<br />";
+			// }
+			// unset($value);	
+	    */	
+		return $stuff;
 	}
 
-$url = "http://spsu.edu/";
-crawl_page($url, 1);
+$stuff = new OurStuff;
 
-echo "urls = " . count($urls) . "<br />",PHP_EOL;
-echo "images = " . count($images) . "<br />",PHP_EOL;
-echo "*************  URLS  *************<br />";
-foreach ($urls as $url => $value) {
-	// $code = Get_Http_Code($url);
-	echo "$url = [$value]<br />";		// . Get_Http_Code($url);
-}
-echo "*************  IMAGES  *************<br />";
-foreach ($images as $img => $value) {
-	echo "$img = [$value]<br />";
-}
+// var_dump($stuff);
+$url = "http://spsu.edu/";
+// crawl_page($url, 1);
+
+$temp = crawl_page($stuff);
+
+// echo count($stuff->found);
+
+echo "Total # of urls &amp; images = " . count($temp->found) . "<br />",PHP_EOL;
+// echo "images = " . count($images) . "<br />",PHP_EOL;
+
+

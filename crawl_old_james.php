@@ -26,7 +26,7 @@ class Crawl
     
     // return array();
     function getAllElements(DOMDocument $thisDOM) {
-        $array;
+        $array = new array();
         $aVals = $thisDOM->getElementsByTagName('a');
         foreach ($aVals as $found_a) {
         //    echo $DOM->saveHtml($node), PHP_EOL;
@@ -82,9 +82,7 @@ class Crawl
         return $scheme.'://'.$abs;
     }
 
-    function absolute_array(array $ar, $url)
-    {
-    //    $cnt = count($ar);
+    function absolute_array(array $ar, $url) {
         foreach($ar as $a)
         {
 			$path = $this->Relative_2_Absolute($a, $url);    //"http://spsu.edu/");
@@ -129,16 +127,16 @@ class Crawl
         print_r($path);
         foreach ($path as $value) {
             $code = $this->Get_Http_Code($value);
-            switch ($code) {
-                case '200':
-                    $subDomain[200] = $
-                    break;
+            // switch ($code) {
+            //     case '200':
+            //         $subDomain[200] = $
+            //         break;
                 
-                default:
-                    # code...
-                    break;
-            }
-            $subDomain[] = array($value => $code);
+            //     default:
+            //         # code...
+            //         break;
+            // }
+            // $subDomain[] = array($value => $code);
         }
         // $tmp2 = $this->Get_src_Elements($DOM);
         // $tmp3 = $this->absolute_array($tmp1,$url);
@@ -150,16 +148,16 @@ class Crawl
         
         // print_r($found);
 
-        // echo '<h1>'.$url.'<br />';
-        // echo '\'a\' Items: '.count($tmp1).'<br />';
-        // echo '\'src\' Items: '.count($tmp2).'<br />';
-        // $tot = count($tmp1) + count($tmp2);
-        // echo 'Total Items: '.$tot.'</h1>';
+        echo '<h1>'.$url.'<br />';
+        echo '\'a\' Items: '.count($tmp1).'<br />';
+        echo '\'src\' Items: '.count($tmp2).'<br />';
+        $tot = count($tmp1) + count($tmp2);
+        echo 'Total Items: '.$tot.'</h1>';
         
-        // echo '<h3>----------  Begin \'a\'  ----------</h3>';
-        // $this->absolute_array($tmp1, $url);
-        // echo '<h3>----------  Begin \'src\'  ----------</h3>';
-        // $this->absolute_array($tmp2, $url);
+        echo '<h3>----------  Begin \'a\'  ----------</h3>';
+        $this->absolute_array($tmp1, $url);
+        echo '<h3>----------  Begin \'src\'  ----------</h3>';
+        $this->absolute_array($tmp2, $url);
     }
 }
 

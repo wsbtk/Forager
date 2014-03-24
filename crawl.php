@@ -44,13 +44,11 @@ class Crawl
         return $src;
     }
 	
-	/*
-	 * Thank you StackOverflow...
+	/* Thank you StackOverflow...
 	 * http://stackoverflow.com/questions/1243418/php-how-to-resolve-a-relative-url
 	 * This function would have taken a week to write.
 	 * */
-	function Relative_2_Absolute($rel, $base)
-    {
+	function Relative_2_Absolute($rel, $base) {
         /* return if already absolute URL */
         if (parse_url($rel, PHP_URL_SCHEME) != '') return $rel;
 
@@ -79,11 +77,8 @@ class Crawl
         return $scheme.'://'.$abs;
     }
 
-    function Print_Array(array $ar)
-    {
-    //    $cnt = count($ar);
-        foreach($ar as $a)
-        {
+    function Print_Array(array $ar) {
+        foreach($ar as $a) {
 			$path = $this->Relative_2_Absolute($a, "http://spsu.edu");
         	$code = $this->Get_Http_Code($path);
 			// if($code != '200') {
@@ -92,7 +87,7 @@ class Crawl
 			// else {
 				// echo "$path = Good <br />";
 			// }
-// 			
+            // 			
 			// switch ($code) {
 			    // case 0:
 			        // echo "i equals 0";
@@ -124,7 +119,7 @@ class Crawl
         
         $html_source = file_get_contents($url);
         $DOM = new DOMDocument;
-        $DOM->loadHTML($html_source);
+        @$DOM->loadHTML($html_source);
         
         $tmp1 = $this->Get_a_Elements($DOM);
 		
@@ -143,8 +138,8 @@ class Crawl
     }
 }
 
-// $url = "http://spsu.edu/";
-$url = "http://www.jetsquared.org/waggle/";
+$url = "http://spsu.edu/";
+// $url = "http://www.jetsquared.org/waggle/";
 
 
 //$html_source = file_get_contents($url);
@@ -152,7 +147,6 @@ $url = "http://www.jetsquared.org/waggle/";
 //$DOM->loadHTML($html_source);
 
 $crawl = new Crawl();
-
 $crawl->Get_Elements($url);
 
 

@@ -26,7 +26,10 @@ class crawler{
 				}
 			}
 		}
-		echo "$this->_urls</br>";
+		foreach ($this->_urls as $key => $value) {
+			echo "$key = [$value]<br />";
+		}
+		// echo "$this->_urls</br>";
 		return $this->_urls;
 	}
 }
