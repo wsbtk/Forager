@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script>
+function updateNum(num)
+{
+if (str.length==0)
+  { 
+  document.getElementById("txtHint").innerHTML="";
+  return;
+  }
+var xmlhttp=new XMLHttpRequest();
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("GET","crawl_clean.php?q="+num,true);
+xmlhttp.send();
+}
+</script>
+<script type="text/javascript">
+  $(document).ready(function(){
+  setInterval(function(){
+    $.get('your.php',function(response){
+      $('#your_element_id').html(response);
+    });
+  },2000);
+});
+</script>
+</head>
+<body>
+
+<h3>Start typing a name in the input field below:</h3>
+
+<button type="button" onclick="updateNum()">Start Crawl</button>
+<p>Suggestions: <span id="txtHint"></span></p> 
+
+</body>
+</html>

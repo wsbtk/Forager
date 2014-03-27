@@ -5,7 +5,7 @@
 // $domains = array();
 // List of all our crawled URLs.
 // $urls = array();
- ob_implicit_flush(true);
+ob_implicit_flush(true);
 
 class OurStuff {
 		public $domain;
@@ -31,30 +31,13 @@ class OurStuff {
 		}
 	  }
 
-class Crawler {    
-	function crawl( &$stuff ) {		
-		if (count($stuff->total_scanned) > 1500) { 
-    		// echo $stuff->total_scanned . "<br />";
-    		// echo "total urls = " . count($stuff->scanned) . "<br />";
-    		echo "done";
-    		return; }
-    		else {
-    // 			$num = count($stuff->scan_num);
-				// $tot = $stuff->total_scanned;
-    // 			echo "********  scan # = [$num]  ********<br />";
-    // 			echo "********  scanned = [$tot]  ********<br />";
-    		}
+class Crawler extends Thread {  
+	public $url;
+    public function __construct(&$stuff){
+        $this->url = $stuff->domain;
+    }
 
-		// $url = array_pop($stuff->all_found);
-    		if($scan_num < count($stuff->all_found)) {
-    			$scan = $stuff->scan_num;
-    			$url = $stuff->all_found[$scan];
-    			$stuff->scan_num += 1;
-    			// echo $stuff->scan_num . "<br />";
-    		}
-    		else
-    			return;
-
+	function run( &$stuff ) {		
 		$content = file_get_contents( $url );    
 		if ( $content === FALSE ) {
 			// echo "$url  ==>  Error.\n";
@@ -96,7 +79,26 @@ class Crawler {
 		unset($path);
 		unset($code);
 
-	    $this->crawl($stuff);
+		if (count($stuff->total_scanned) < 1500) { 
+	    		// echo $stuff->total_scanned . "<br />";
+	    		// echo "total urls = " . count($stuff->scanned) . "<br />";
+	    		echo "done";
+	    		return;
+    		}
+    		else {
+    			//	$num = count($stuff->scan_num);
+				// $tot = $stuff->total_scanned;
+    			// echo "********  scan # = [$num]  ********<br />";
+    			// echo "********  scanned = [$tot]  ********<br />";
+				// $url = array_pop($stuff->all_found);
+	    		if($scan_num < count($stuff->all_found)) {
+	    			$scan = $stuff->scan_num;
+	    			$url = $stuff->all_found[$scan];
+	    			$stuff->scan_num += 1;
+	    			// echo $stuff->scan_num . "<br />";
+	    		}
+	    		$this->run($stuff);
+	    	}
 	}
 	function getAllLinks(DOMDocument $thisDOM) {
 	  $array;
@@ -114,7 +116,6 @@ class Crawler {
 	  }
 	  return $array;
 	}
-
 	/* Thank you StackOverflow...
 		* http://stackoverflow.com/questions/1243418/php-how-to-resolve-a-relative-url
 		* This function would have taken a week to write.
@@ -160,19 +161,51 @@ class Crawler {
 	}
 
 }
+
+
+
 $stuff = new OurStuff();
 // var_dump($stuff);
 // echo "begin<br />" . array_pop($stuff->all_found);
 // $stuff = new OurStuff;
 
-$spider = new Crawler();
-$spider->crawl($stuff);
+// $spider = new Crawler();
+// $spider->crawl($stuff);
 
-// foreach ($stuff->all_found as $key) {
-// 	echo "url = $key";
-// }
 
-// $num = count($stuff->scan_num);
-// $tot = $stuff->total_scanned;
-// echo "********  scan # = [$num]  ********<br />";
-// echo "********  scanned = [$tot]  ********<br />";
+class spiderCrawl extends Thread {
+    public $url;
+    public $data;
+
+    public $stuff;
+    public $spider;
+     
+    public function __construct($url){
+
+	$this->stuff = new OurStuff();
+	$this->spider = new Crawler();
+        $this->url = $url;
+    }
+     
+    public function run() {
+        $response = file_get_contents($this->url);
+        if ($response) {
+            /* process response into useable data */
+             
+            $this->data = array($response);
+        }
+    }
+}
+ 
+$request = new Crawler($stuff);
+ 
+if ($request->start()) {
+     
+    /* do some work */
+     
+    /* ensure we have data */
+    $request->join();
+     
+    /* we can now manipulate the response */
+    var_dump($request->data);
+}
